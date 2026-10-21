@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 from labbox.core.adb_client import AdbClient, AdbError
 from labbox.core.evidence import write_evidence
+from labbox.core.redaction import redact_text
 from labbox.core.scanner import scan_device, findings_as_dicts
 
 def main() -> int:
@@ -69,7 +70,7 @@ def main() -> int:
                 QMessageBox.information(self, "لا توجد نتائج", "نفّذ فحصًا أولًا."); return
             folder = QFileDialog.getExistingDirectory(self, "اختر مجلد حفظ الأدلة")
             if not folder: return
-            payload = {"tool": "Labbox ADB Audit", "device_serial": self.devices.currentData(), "mode": "read-only", "findings": findings_as_dicts(self.findings)}
+            payload = {"tool": "Labbox ADB Audit", "device_serial": "[REDACTED]", "mode": "read-only", "privacy": "common identifiers redacted on export", "findings": [{**item, "detail": redact_text(item["detail"])} for item in findings_as_dicts(self.findings)]}
             try:
                 path, digest = write_evidence(Path(folder), payload)
                 QMessageBox.information(self, "تم حفظ التقرير", f"{path}\nSHA-256: {digest}")

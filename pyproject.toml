@@ -14,6 +14,7 @@ dev = ["pytest>=8", "ruff>=0.5"]
 
 [project.scripts]
 labbox-audit = "labbox.main:main"
+labbox-verify = "labbox.verify:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -32,7 +32,7 @@ jobs:
           cache: true
 
       - name: Create Android Flutter shell
-        run: flutter create --platforms=android --org net.saif.labbox /tmp/labbox_mobile
+        run: flutter create --project-name labbox_mobile --platforms=android --org net.saif /tmp/labbox_mobile
 
       - name: Install Labbox app screen
         run: |
@@ -44,6 +44,7 @@ jobs:
           permission = '    <uses-permission android:name="android.permission.INTERNET"/>\n'
           if 'android.permission.INTERNET' not in text:
               text = text.replace('<application', permission + '    <application', 1)
+          text = text.replace('android:label="labbox_mobile"', 'android:label="LABBOX - TLS Audit"')
           manifest.write_text(text)
           PY
 

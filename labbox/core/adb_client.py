@@ -3,7 +3,6 @@ from __future__ import annotations
 import shutil
 import subprocess
 from dataclasses import dataclass
-from typing import Sequence
 
 class AdbError(RuntimeError):
     """ADB unavailable or diagnostic command failed."""

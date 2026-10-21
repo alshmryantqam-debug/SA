@@ -37,6 +37,8 @@ jobs:
       - name: Install Labbox app screen
         run: |
           cp mobile/lib/main.dart /tmp/labbox_mobile/lib/main.dart
+          mkdir -p /tmp/labbox_mobile/test
+          cp mobile/test/widget_test.dart /tmp/labbox_mobile/test/widget_test.dart
           python3 - <<'PY'
           from pathlib import Path
           manifest = Path('/tmp/labbox_mobile/android/app/src/main/AndroidManifest.xml')

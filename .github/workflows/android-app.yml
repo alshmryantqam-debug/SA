@@ -1,0 +1,72 @@
+name: Build Labbox Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/android-app.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout SA repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter stable
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create Android Flutter shell
+        run: flutter create --platforms=android --org net.saif.labbox /tmp/labbox_mobile
+
+      - name: Install Labbox app screen
+        run: |
+          cp mobile/lib/main.dart /tmp/labbox_mobile/lib/main.dart
+          python3 - <<'PY'
+          from pathlib import Path
+          manifest = Path('/tmp/labbox_mobile/android/app/src/main/AndroidManifest.xml')
+          text = manifest.read_text()
+          permission = '    <uses-permission android:name="android.permission.INTERNET"/>\n'
+          if 'android.permission.INTERNET' not in text:
+              text = text.replace('<application', permission + '    <application', 1)
+          manifest.write_text(text)
+          PY
+
+      - name: Resolve dependencies
+        working-directory: /tmp/labbox_mobile
+        run: flutter pub get
+
+      - name: Analyze Dart source
+        working-directory: /tmp/labbox_mobile
+        run: flutter analyze --no-pub
+
+      - name: Run Flutter tests
+        working-directory: /tmp/labbox_mobile
+        run: flutter test --no-pub
+
+      - name: Build release APK
+        working-directory: /tmp/labbox_mobile
+        run: flutter build apk --release
+
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: labbox-android-apk
+          path: /tmp/labbox_mobile/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14

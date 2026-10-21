@@ -80,13 +80,13 @@ def main() -> int:
                 issuer = certificate["issuer"].get("commonName") or certificate["issuer"].get("organizationName", "غير معروف")
                 expiry = certificate["not_after"] or "غير متاح"
                 summary = (
-                    f"المضيف: {result['host']}:{result['port']}\\n"
-                    f"التحقق من الشهادة: ناجح\\n"
-                    f"إصدار TLS: {result['tls_version']}\\n"
-                    f"التشفير: {result['cipher']}\\n"
-                    f"الاسم: {subject}\\n"
-                    f"الجهة المصدرة: {issuer}\\n"
-                    f"انتهاء الشهادة: {expiry}\\n\\n"
+                    f"المضيف: {result['host']}:{result['port']}\n"
+                    f"التحقق من الشهادة: ناجح\n"
+                    f"إصدار TLS: {result['tls_version']}\n"
+                    f"التشفير: {result['cipher']}\n"
+                    f"الاسم: {subject}\n"
+                    f"الجهة المصدرة: {issuer}\n"
+                    f"انتهاء الشهادة: {expiry}\n\n"
                     "هذه بيانات المصافحة والشهادة فقط؛ لا يجري التقاط أو فك تشفير محتوى التطبيقات."
                 )
                 QMessageBox.information(self, "نتيجة فحص TLS", summary)

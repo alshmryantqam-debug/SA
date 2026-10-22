@@ -1,56 +1,30 @@
-# LABBOX — تطبيق تشخيص Android وTLS
+# ONEBOX — Cyber Network Lab for Android
 
-مشروع Labbox يحتوي على تطبيق Android بواجهة عربية RTL لفحص شهادات TLS، إلى جانب أدوات سطح المكتب الأصلية لتدقيق ADB وتقارير الأدلة. تطبيق الهاتف لا يفك تشفير HTTPS ولا يتجاوز حماية التطبيقات.
+ONEBOX is the Android-facing cyber/network lab inside the university project repository. The Flutter UI is Arabic RTL and uses a dark purple operations-console style.
 
-## تطبيق Android
-- مصدر واجهة التطبيق: `mobile/lib/main.dart`.
-- يفحص اتصال TLS وشهادة الخادم والتحقق من صلاحيتها واسم المضيف، ويعرض الجهة المصدرة وتواريخ الصلاحية وبصمة الشهادة.
-- لبناء APK، افتح GitHub Actions وشغّل `Build Labbox Android APK` يدوياً، أو ادفع تغييراً في `mobile/` إلى `main`.
-- عند نجاح البناء، افتح تشغيل Workflow ثم نزّل Artifact باسم `labbox-android-apk`؛ يحتوي على `app-release.apk`.
-- هذا البناء يولّد APK غير موقّع للنشر على المتجر؛ قد تحتاج إلى السماح بالتثبيت من المصدر الذي نزّلت منه الملف.
+## Current Android modules
 
-## الأدوات الحالية
-- قائمة ADB محددة للقراءة فقط؛ لا يقبل أوامر shell عشوائية أو عمليات تعديل على الجهاز.
-- فحص حالة الاتصال قبل قراءة معلومات الجهاز، مع إيقاف الفحص عند عدم التفويض.
-- جرد طراز الجهاز وإصدار Android والشركة المصنّعة ومستوى SDK ومدة التشغيل ومساحة البيانات.
-- حفظ تقارير الأدلة بشكل ذري مع بصمة SHA-256.
-- أداة سطر أوامر للتحقق من بنية التقرير وسلامة بصمته وكشف التغيير اللاحق.
-- فحص TLS آمن لشهادة المضيف واسم النطاق والجهة المصدرة وتاريخ الانتهاء وإصدار TLS ومجموعة التشفير؛ دون اعتراض أو فك تشفير محتوى الاتصال.
-- إخفاء مبدئي لبعض المعرّفات الشائعة قبل مشاركة النصوص.
-- واجهة سطح مكتب عربية داكنة مبنية على PySide6.
+- **MikroTik Lab:** performs a TCP reachability check against a user-entered host and port. This is only a port-connectivity check; it does not authenticate to RouterOS or change router settings.
+- **Packet Inspector:** parses the five-byte record header of pasted hexadecimal TLS data as an educational first-pass inspection. It is not a live packet capture engine or a complete PCAP parser.
+- **TLS Certificate Lab:** opens a normal TLS connection with platform certificate validation and displays public certificate details.
+- **Cyber Toolkit:** lists current diagnostic modules and clearly marks modules that are planned, not implemented.
 
-## التشغيل
-1. Python 3.10 أو أحدث.
-2. ثبّت Android Platform Tools وتأكد من توفر `adb` في PATH.
-3. ثبّت المتطلبات: `python -m pip install -e '.[dev]'`.
-4. شغّل الواجهة: `python -m labbox.main` أو `labbox-audit`.
-5. فحص شهادة TLS لمضيف مصرح لك بفحصه: `labbox-tls-audit example.com --port 443`.
-6. الاختبارات: `pytest`، وفحص الأخطاء الشائعة: `ruff check . --select F`.
+## Build APK
 
-## التحقق من تقرير
-بعد حفظ تقرير، انسخ بصمة SHA-256 التي عرضتها الأداة وقت الحفظ واحتفظ بها بشكل مستقل. ثم شغّل:
+Open [GitHub Actions](https://github.com/alshmryantqam-debug/SA/actions/workflows/android-app.yml), run the workflow on `main` or push a change under `mobile/`. A successful run uploads the `onebox-android-apk` artifact containing `app-release.apk`.
 
-```bash
-labbox-verify /path/to/evidence.json YOUR_64_CHARACTER_SHA256
-```
+## Security and scope
 
-تُرجع الأداة رمز خروج 0 عند نجاح التحقق، و1 عند عدم تطابق البصمة، و2 إذا كانت البنية أو المدخلات غير صالحة. لا تستبدل البصمة الأصلية ببصمة محسوبة من الملف بعد الشك بالتلاعب؛ فهذا لا يثبت سلامته السابقة.
+- Only test routers and systems you own or are explicitly authorized to assess.
+- TCP port reachability is not equivalent to a successful RouterOS API session.
+- TLS certificate inspection does not decrypt HTTPS payloads. Capturing encrypted TLS traffic alone does not reveal its plaintext; decryption requires appropriate session secrets or keys in an authorized lab.
+- Full RouterOS API management, live capture, PCAP import/analysis, DNS diagnostics, and subscriber/queue views are **not implemented yet** and must not be treated as working features.
+- Do not commit router passwords, API tokens, session secrets, or private keys.
 
-## فحص TLS وحدوده
-- ينشئ فحص TLS اتصالاً عادياً ويتحقق من الشهادة واسم المضيف باستخدام مخزن الثقة الافتراضي للنظام.
-- لا يعطّل التحقق من الشهادات، ولا يثبت شهادة وسيطة، ولا ينفّذ MITM أو تجاوز certificate pinning.
-- يعرض بيانات المصافحة وبيانات الشهادة العامة فقط؛ لا يلتقط ولا يفك تشفير محتوى التطبيقات.
-- استخدمه فقط مع مضيف تملكه أو لديك إذن صريح لفحصه. لا تُدخل أسراراً أو رموز جلسات في تقارير التشخيص.
+## Android source and tests
 
-## حدود الأمان
-- استخدم الأداة فقط على جهاز تملكه أو لديك إذن صريح بفحصه.
-- لا تنفّذ الأداة تثبيتًا أو حذفًا أو دفع ملفات أو إعادة تشغيل أو root أو remount.
-- موافقة USB debugging تظهر على الجهاز ويجب ألا تتجاوزها الأداة.
-- إخفاء البيانات تقريبي وليس ضمانًا لإزالة كل المعلومات الشخصية.
-- بصمة SHA-256 تكشف التغييرات فقط إذا احتفظت بالبصمة الأصلية بشكل مستقل، ولا تثبت هوية منشئ التقرير.
-- أدوات تدقيق ADB وواجهة PySide6 ما زالت برنامج سطح مكتب Python منفصلاً؛ تطبيق Android هو وحدة الموبايل الجديدة ضمن المستودع نفسه.
+- App: `mobile/lib/main.dart`
+- Widget test: `mobile/test/widget_test.dart`
+- Build workflow: `.github/workflows/android-app.yml`
 
-## الوثائق
-راجع `SECURITY.md` و`docs/THREAT-MODEL.md` و`docs/TESTING-PLAN.md` و`docs/ARCHITECTURE.md`.
-
-التطوير الحالي محفوظ على `main`.
+The desktop Python/ADB audit components in this repository remain separate from this Android app.

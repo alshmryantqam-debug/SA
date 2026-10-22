@@ -1,4 +1,4 @@
-name: Build Labbox Android APK
+name: Build ONEBOX Android APK
 
 on:
   push:
@@ -34,7 +34,7 @@ jobs:
       - name: Create Android Flutter shell
         run: flutter create --project-name labbox_mobile --platforms=android --org net.saif /tmp/labbox_mobile
 
-      - name: Install Labbox app screen
+      - name: Install ONEBOX app screen and tests
         run: |
           cp mobile/lib/main.dart /tmp/labbox_mobile/lib/main.dart
           mkdir -p /tmp/labbox_mobile/test
@@ -46,7 +46,7 @@ jobs:
           permission = '    <uses-permission android:name="android.permission.INTERNET"/>\n'
           if 'android.permission.INTERNET' not in text:
               text = text.replace('<application', permission + '    <application', 1)
-          text = text.replace('android:label="labbox_mobile"', 'android:label="LABBOX - TLS Audit"')
+          text = text.replace('android:label="labbox_mobile"', 'android:label="ONEBOX Cyber Lab"')
           manifest.write_text(text)
           PY
 
@@ -69,7 +69,7 @@ jobs:
       - name: Upload installable APK
         uses: actions/upload-artifact@v4
         with:
-          name: labbox-android-apk
+          name: onebox-android-apk
           path: /tmp/labbox_mobile/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 14
